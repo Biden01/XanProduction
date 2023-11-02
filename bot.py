@@ -143,9 +143,9 @@ def callback_message(callback):
       do = "index_kk"
       bot.send_message(callback.message.chat.id, text="Регион жазыныз")
    if callback.data == "hello_ru":
-      bot.send_message(callback.message.chat.id, f'Привет {callback.message.from_user.username}')
+      bot.send_message(callback.message.chat.id, f'Привет {callback.message.chat.username}')
    if callback.data == "hello_kk":
-      bot.send_message(callback.message.chat.id, f"Сәлем {callback.message.from_user.username}")
+      bot.send_message(callback.message.chat.id, f"Сәлем {callback.message.chat.username}")
    if callback.data == "index_number_ru":
       do = "index_number_ru"
       bot.send_message(callback.message.chat.id, "Напишите номер телефона")
