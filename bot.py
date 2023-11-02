@@ -122,7 +122,7 @@ def callback_message(callback):
          elif message.text not in regions_ru and do == "index_ru":
             bot.reply_to(message, "Такого региона нету")
          if message.text[:4] in abonent and do == "index_number_ru":
-            bot.reply_to(message, abonent[message.text[:4]])
+            bot.reply_to(message, text=f"{abonent[message.text[:4]]}")
          elif message.text[:4] not in abonent and do == "index_number_ru":
             bot.reply_to(message, "Неправильно введен номер")
       elif message.from_user.language_code == "kk":
