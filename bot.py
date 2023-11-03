@@ -85,33 +85,32 @@ abonent = {'+700':'АЛТЕЛ',
 api = "6769765002:AAGYb0llSWO1VhYWHaFjZd99Z0fNZRE1Uwk"
 bot = telebot.TeleBot(api)
 do = ""
-
+lang = ""
 
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
    if message.from_user.language_code == "ru":
-      markup = types.InlineKeyboardMarkup()
-      btn1 = types.InlineKeyboardButton("👋",callback_data="hello_ru")
-      btn2 = types.InlineKeyboardButton("Узнать абонента по номеру телефона", callback_data="index_number_ru")
-      btn3 = types.InlineKeyboardButton("Узнать регион по индексу",callback_data="index_ru")
-      markup.row(btn1)
-      markup.add(btn2, btn3)
-      bot.send_message(message.chat.id, text="Здравствуйте пользователь, наш бот определяет регион по индексу номера автомобиля, например: (01) и узнает абонента по номеру телефона, например: (+777)😇".format(message.from_user), reply_markup=markup)
+      markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+      btn1 = types.KeyboardButton("Узнать абонента по номеру телефона")
+      btn2 = types.KeyboardButton("Узнать регион по индексу")
+      markup.add(btn1, btn2)
+      bot.send_message(message.chat.id, text=f"Привет {message.chat.username}, наш бот определяет регион по индексу номера автомобиля, например: (01) и узнает абонента по номеру телефона, например: (+777)😇".format(message.from_user), reply_markup=markup)
+      bot.register_next_step_handler(message, do_ru)
 
    elif message.from_user.language_code == "kk":
-      markup = types.InlineKeyboardMarkup()
-      btn1 = types.InlineKeyboardButton("👋", callback_data="hello_kk")
-      btn2 = types.InlineKeyboardButton("Абонентті телефон нөмірі арқылы табу", callback_data="index_number_kk")
-      btn3 = types.InlineKeyboardButton("Индекс арқылы регион анықтау", callback_data="index_kk")
-      markup.row(btn1)
-      markup.add(btn2, btn3)
-      bot.send_message(message.chat.id, text="Сәлем қолданушы, біздің бот көлік номеріндегі индексі арқылы өңірді анықтап береді Мысалы:(01) жәнеде телефон номердің абонентін анықтап береді Мысалы:(+777)😇".format(message.from_user), reply_markup=markup)
+      markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+      btn1 = types.KeyboardButton("Абонентті телефон нөмірі арқылы табу")
+      btn2 = types.KeyboardButton("Индекс арқылы регион анықтау")
+      markup.add(btn1, btn2)
+      bot.send_message(message.chat.id, text=f"Сәлем {message.chat.username}, біздің бот көлік номеріндегі индексі арқылы өңірді анықтап береді Мысалы:(01) жәнеде телефон номердің абонентін анықтап береді Мысалы:(+777)😇".format(message.from_user), reply_markup=markup)
+      bot.register_next_step_handler(message, do_ru)
 
 
-@bot.callback_query_handler(func=lambda callback:True)
-def callback_message(callback):
-   global do
-
+def do_ru(message):
+   global do, lang
+   markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+   btn1 = types.KeyboardButton("Меню")
+   markup.add(btn1)
    @bot.message_handler()
    def all(message):
       if message.from_user.language_code == "ru":
@@ -119,39 +118,49 @@ def callback_message(callback):
             message.text = "0" + message.text
          if message.text in regions_ru and do == "index_ru":
             bot.reply_to(message, regions_ru[message.text])
-         elif message.text not in regions_ru and do == "index_ru":
+         elif message.text not in regions_ru and do == "index_ru" and message.text != "Меню":
             bot.reply_to(message, "Такого региона нету")
          if message.text[:4] in abonent and do == "index_number_ru":
             bot.reply_to(message, text=f"{abonent[message.text[:4]]}")
-         elif message.text[:4] not in abonent and do == "index_number_ru":
+         elif message.text[:4] not in abonent and do == "index_number_ru" and message.text != "Меню":
             bot.reply_to(message, "Неправильно введен номер")
       elif message.from_user.language_code == "kk":
          if len(message.text) == 1 and do == "index_kk":
             message.text = "0" + message.text
          if message.text in regions_kk and do == "index_kk":
             bot.reply_to(message, regions_kk[message.text])
-         elif message.text not in regions_kk and do == "index_kk":
+         elif message.text not in regions_kk and do == "index_kk" and message.text != "Меню":
             bot.reply_to(message, "Ондай регион жоқ")
          if message.text[:4] in abonent and do == "index_number_kk":
             bot.reply_to(message, abonent[message.text])
-         elif message.text[:4] not in abonent and do == "index_number_kk":
+         elif message.text[:4] not in abonent and do == "index_number_kk" and message.text != "Меню":
             bot.reply_to(message, "Енгізілген нөмер қате")
-   if callback.data == "index_ru":
+      if message.text == "Меню" and message.from_user.language_code == "ru":
+         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+         btn1 = types.KeyboardButton("Узнать абонента по номеру телефона")
+         btn2 = types.KeyboardButton("Узнать регион по индексу")
+         markup.add(btn1,btn2)
+         bot.send_message(message.chat.id,text=f"Привет {message.chat.username}, наш бот определяет регион по индексу номера автомобиля, например: (01) и узнает абонента по номеру телефона, например: (+777)😇".format(message.from_user), reply_markup=markup)
+         bot.register_next_step_handler(message, do_ru)
+      elif message.text == "Меню" and message.from_user.language_code == "kk":
+         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+         btn1 = types.KeyboardButton("Абонентті телефон нөмірі арқылы табу")
+         btn2 = types.KeyboardButton("Индекс арқылы регион анықтау")
+         markup.add(btn1, btn2)
+         bot.send_message(message.chat.id,text=f"Сәлем {message.chat.username}, біздің бот көлік номеріндегі индексі арқылы өңірді анықтап береді Мысалы:(01) жәнеде телефон номердің абонентін анықтап береді Мысалы:(+777)😇".format(message.from_user), reply_markup=markup)
+         bot.register_next_step_handler(message, do_ru)
+   if message.text == "Узнать регион по индексу":
       do = "index_ru"
-      bot.send_message(callback.message.chat.id, text="Напишите регион")
-   if callback.data == "index_kk":
+      bot.send_message(message.chat.id, text="Напишите регион", reply_markup=markup)
+   if message.text == "Индекс арқылы регион анықтау":
       do = "index_kk"
-      bot.send_message(callback.message.chat.id, text="Регион жазыныз")
-   if callback.data == "hello_ru":
-      bot.send_message(callback.message.chat.id, f'Привет {callback.message.chat.username}')
-   if callback.data == "hello_kk":
-      bot.send_message(callback.message.chat.id, f"Сәлем {callback.message.chat.username}")
-   if callback.data == "index_number_ru":
+      bot.send_message(message.chat.id, text="Регион жазыныз", reply_markup=markup)
+   if message.text == "Узнать абонента по номеру телефона":
       do = "index_number_ru"
-      bot.send_message(callback.message.chat.id, "Напишите номер телефона")
-   if callback.data == "index_number_kk":
+      bot.send_message(message.chat.id, "Напишите номер телефона",reply_markup=markup)
+   if message.text == "Абонентті телефон нөмірі арқылы табу":
       do = "index_number_kk"
-      bot.send_message(callback.message.chat.id, "Телефон нөмер жазыңыз")
+      bot.send_message(message.chat.id, "Телефон нөмер жазыңыз",reply_markup=markup)
 
 
 bot.infinity_polling()
